@@ -42,7 +42,7 @@
                 <li
                   role="presentation"
                   @click="open(i)"
-                  :id="i.trim()"
+                  :id="i.trim()+'2'"
                   class="inactive"
                 >
                   {{ i }}
@@ -53,9 +53,9 @@
                   })"
                   role="option"
                   class="content"
-                  :name="i"
+                  :name="i+'2'"
                   @click="additem(k.value)"
-                  :id="k.value"
+                  :id="k.value+'2'"
                 >
                   {{ k.label }}
                 </li>
@@ -150,8 +150,8 @@ export default {
       handler: function (val) {
         let groups = [...new Set(this.searchcol.map((item) => item.group))];
         for (let i = 0; i < groups.length; ++i) {
-          document.getElementById(groups[i].trim()).className = "active";
-          var elements = document.getElementsByName(groups[i]);
+          document.getElementById(groups[i].trim()+'2').className = "active";
+          var elements = document.getElementsByName(groups[i]+'2');
           for (let index = 0; index < elements.length; ++index) {
             elements[index].className = "content2";
           }
@@ -161,7 +161,7 @@ export default {
           elements[index].classList.remove("focused");
         }
         for (let index = 0; index < val.length; ++index) {
-          var element = document.getElementById(val[index]);
+          var element = document.getElementById(val[index]+'2');
           element.classList.add("focused");
         }
         this.chips = [];
@@ -192,8 +192,8 @@ export default {
     search: function (val) {
       let groups = [...new Set(this.searchcol.map((item) => item.group))];
       for (let i = 0; i < groups.length; ++i) {
-        document.getElementById(groups[i].trim()).className = "active";
-        var elements = document.getElementsByName(groups[i]);
+        document.getElementById(groups[i].trim()+'2').className = "active";
+        var elements = document.getElementsByName(groups[i]+'2');
         for (let index = 0; index < elements.length; ++index) {
           elements[index].className = "content2";
         }
@@ -213,15 +213,15 @@ export default {
   },
   methods: {
     open(group) {
-      if (document.getElementById(group.trim()).className === "inactive") {
-        document.getElementById(group.trim()).className = "active";
-        var elements = document.getElementsByName(group);
+      if (document.getElementById(group.trim()+'2').className === "inactive") {
+        document.getElementById(group.trim()+'2').className = "active";
+        var elements = document.getElementsByName(group+'2');
         for (let index = 0; index < elements.length; ++index) {
           elements[index].className = "content2";
         }
       } else {
-        document.getElementById(group.trim()).className = "inactive";
-        var elements = document.getElementsByName(group);
+        document.getElementById(group.trim()+'2').className = "inactive";
+        var elements = document.getElementsByName(group+'2');
         for (let index = 0; index < elements.length; ++index) {
           elements[index].className = "content";
         }
@@ -261,8 +261,8 @@ export default {
     collapse() {
       let groups = [...new Set(this.searchcol.map((item) => item.group))];
       for (let i = 0; i < groups.length; ++i) {
-        document.getElementById(groups[i].trim()).className = "inactive";
-        var elements = document.getElementsByName(groups[i]);
+        document.getElementById(groups[i].trim()+'2').className = "inactive";
+        var elements = document.getElementsByName(groups[i]+'2');
         for (let index = 0; index < elements.length; ++index) {
           elements[index].className = "content";
         }
