@@ -6,8 +6,12 @@ module.exports = defineConfig({
     electronBuilder: {
         customFileProtocol: './',
         builderOptions: {
-            publish: ['github'],
-            productName: "SAS Code Generator",
+            publish: {
+              "provider": "github",
+              "owner": "kang20006",
+              "repo": "sup_app"
+            },
+            productName: "Supa App",
         },
     },
 },
