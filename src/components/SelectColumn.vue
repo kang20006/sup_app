@@ -42,7 +42,7 @@
                 <li
                   role="presentation"
                   @click="open(i)"
-                  :id="i.trim()+'2'"
+                  :id="i.trim() + '2'"
                   class="inactive"
                 >
                   {{ i }}
@@ -53,9 +53,9 @@
                   })"
                   role="option"
                   class="content"
-                  :name="i+'2'"
+                  :name="i + '2'"
                   @click="additem(k.value)"
-                  :id="k.value+'2'"
+                  :id="k.value + '2'"
                 >
                   {{ k.label }}
                 </li>
@@ -150,20 +150,35 @@ export default {
       handler: function (val) {
         let groups = [...new Set(this.searchcol.map((item) => item.group))];
         for (let i = 0; i < groups.length; ++i) {
-          document.getElementById(groups[i].trim()+'2').className = "active";
-          var elements = document.getElementsByName(groups[i]+'2');
+          document.getElementById(groups[i].trim() + "2").className = "active";
+          var elements = document.getElementsByName(groups[i] + "2");
           for (let index = 0; index < elements.length; ++index) {
             elements[index].className = "content2";
           }
         }
-        var elements = document.getElementsByClassName("focused");
-        for (let index = 0; index < elements.length; ++index) {
-          elements[index].classList.remove("focused");
+        try {
+          var elements = document.getElementsByClassName("focused");
+          for (let index = 0; index < elements.length; ++index) {
+            elements[index].classList.remove("focused");
+          }
+          for (let index = 0; index < val.length; ++index) {
+            var element = document.getElementById(val[index] + "2");
+            element.classList.add("focused");
+          }
+        } catch (err) {
+          let extract = this.searchcol.map(a => a.value);
+          let newgroup = val.filter(x => extract.includes(x));
+          var elements = document.getElementsByClassName("focused");
+          for (let index = 0; index < elements.length; ++index) {
+            elements[index].classList.remove("focused");
+          }
+          for (let index = 0; index < newgroup.length; ++index) {
+            var element = document.getElementById(newgroup[index] + "2");
+            element.classList.add("focused");
+          }
+          // to solve the bug we will choose the val only form the filter list the 'searchcol'
         }
-        for (let index = 0; index < val.length; ++index) {
-          var element = document.getElementById(val[index]+'2');
-          element.classList.add("focused");
-        }
+
         this.chips = [];
         this.$emit("outputColumn", val);
         for (var item in val) {
@@ -192,8 +207,8 @@ export default {
     search: function (val) {
       let groups = [...new Set(this.searchcol.map((item) => item.group))];
       for (let i = 0; i < groups.length; ++i) {
-        document.getElementById(groups[i].trim()+'2').className = "active";
-        var elements = document.getElementsByName(groups[i]+'2');
+        document.getElementById(groups[i].trim() + "2").className = "active";
+        var elements = document.getElementsByName(groups[i] + "2");
         for (let index = 0; index < elements.length; ++index) {
           elements[index].className = "content2";
         }
@@ -213,15 +228,17 @@ export default {
   },
   methods: {
     open(group) {
-      if (document.getElementById(group.trim()+'2').className === "inactive") {
-        document.getElementById(group.trim()+'2').className = "active";
-        var elements = document.getElementsByName(group+'2');
+      if (
+        document.getElementById(group.trim() + "2").className === "inactive"
+      ) {
+        document.getElementById(group.trim() + "2").className = "active";
+        var elements = document.getElementsByName(group + "2");
         for (let index = 0; index < elements.length; ++index) {
           elements[index].className = "content2";
         }
       } else {
-        document.getElementById(group.trim()+'2').className = "inactive";
-        var elements = document.getElementsByName(group+'2');
+        document.getElementById(group.trim() + "2").className = "inactive";
+        var elements = document.getElementsByName(group + "2");
         for (let index = 0; index < elements.length; ++index) {
           elements[index].className = "content";
         }
@@ -261,8 +278,8 @@ export default {
     collapse() {
       let groups = [...new Set(this.searchcol.map((item) => item.group))];
       for (let i = 0; i < groups.length; ++i) {
-        document.getElementById(groups[i].trim()+'2').className = "inactive";
-        var elements = document.getElementsByName(groups[i]+'2');
+        document.getElementById(groups[i].trim() + "2").className = "inactive";
+        var elements = document.getElementsByName(groups[i] + "2");
         for (let index = 0; index < elements.length; ++index) {
           elements[index].className = "content";
         }

@@ -150,6 +150,7 @@ export default {
   watch: {
     selectedFilter: {
       handler: function (val) {
+        
         let groups = [...new Set(this.searchcol.map((item) => item.group))];
         for (let i = 0; i < groups.length; ++i) {
           document.getElementById(groups[i].trim() + "1").className = "active";
@@ -158,14 +159,27 @@ export default {
             elements[index].className = "content2";
           }
         }
-        var elements = document.getElementsByClassName("focused1");
+        try{var elements = document.getElementsByClassName("focused1");
         for (let index = 0; index < elements.length; ++index) {
           elements[index].classList.remove("focused1");
         }
         for (let index = 0; index < val.length; ++index) {
           var element = document.getElementById(val[index] + "1");
           element.classList.add("focused1");
+        }}
+        catch(err){
+          let extract = this.searchcol.map(a => a.value);
+          let newgroup = val.filter(x => extract.includes(x));
+          var elements = document.getElementsByClassName("focused");
+          for (let index = 0; index < elements.length; ++index) {
+            elements[index].classList.remove("focused");
+          }
+          for (let index = 0; index < newgroup.length; ++index) {
+            var element = document.getElementById(newgroup[index] + "1");
+            element.classList.add("focused");
+          }
         }
+        
 
         // this.$emit("output", val);
       },
