@@ -74,7 +74,7 @@ async function createWindow() {
   const win = new BrowserWindow({
     width: 800,
     height: 600,
-    title: "SAS Code Generator",
+    title: "Data Super App",
     icon: path.join(__static, 'icon.png'),
     webPreferences: {
       

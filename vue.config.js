@@ -11,7 +11,7 @@ module.exports = defineConfig({
               "owner": "kang20006",
               "repo": "sup_app"
             },
-            productName: "Supa App",
+            productName: "Data Super App",
         },
     },
 },

@@ -59,10 +59,16 @@
         </div>
       </div>
       <Button
-              label="Collapse All"
-              class="p-button-text p-button-sm"
-              @click="collapse"
-            />
+        label="Collapse All"
+        class="p-button-text p-button-sm"
+        @click="collapse"
+      />
+      <!-- <FileUpload
+        mode="basic"
+        name="demo[]"
+        :customUpload="true"
+        @uploader="onUpload"
+      /> -->
     </div>
   </div>
 </template>
@@ -74,13 +80,16 @@ import Checkbox from "primevue/checkbox";
 import { storeData } from "../store/data";
 import InputText from "primevue/inputtext";
 import Button from "primevue/button";
+import FileUpload from "primevue/fileupload";
+
 export default {
   name: "SelectFilter",
   components: {
     Listbox,
     Checkbox,
     InputText,
-    Button
+    Button,
+    FileUpload,
   },
   props: ["selectedFilter"],
   emits: ["output"],
@@ -106,6 +115,27 @@ export default {
       .catch((err) => console.log(err.message));
   },
   methods: {
+    // onUpload(event) {
+    //   let formData = new FormData();
+    //   formData.append('File', event.files);
+    //   console.log(event)
+    //   axios
+    //     .post(
+    //       process.env.VUE_APP_BASE_URL + "/filterupload/" + this.user_id,
+    //       formData,
+    //       {
+    //         headers: {
+    //           "Content-Type": "multipart/form-data",
+    //         },
+    //       }
+    //     )
+    //     .then((response) => {
+    //         console.log(response)
+    //       })
+    //       .catch(function (error) {
+    //        console.log(error)
+    //       });
+    // },
     open(group) {
       if (
         document.getElementById(group.trim() + "1").className === "inactive"
@@ -139,8 +169,8 @@ export default {
     collapse() {
       let groups = [...new Set(this.searchcol.map((item) => item.group))];
       for (let i = 0; i < groups.length; ++i) {
-        document.getElementById(groups[i].trim()+"1").className = "inactive";
-        var elements = document.getElementsByName(groups[i]+"1");
+        document.getElementById(groups[i].trim() + "1").className = "inactive";
+        var elements = document.getElementsByName(groups[i] + "1");
         for (let index = 0; index < elements.length; ++index) {
           elements[index].className = "content";
         }
@@ -150,7 +180,6 @@ export default {
   watch: {
     selectedFilter: {
       handler: function (val) {
-        
         let groups = [...new Set(this.searchcol.map((item) => item.group))];
         for (let i = 0; i < groups.length; ++i) {
           document.getElementById(groups[i].trim() + "1").className = "active";
@@ -159,17 +188,18 @@ export default {
             elements[index].className = "content2";
           }
         }
-        try{var elements = document.getElementsByClassName("focused1");
-        for (let index = 0; index < elements.length; ++index) {
-          elements[index].classList.remove("focused1");
-        }
-        for (let index = 0; index < val.length; ++index) {
-          var element = document.getElementById(val[index] + "1");
-          element.classList.add("focused1");
-        }}
-        catch(err){
-          let extract = this.searchcol.map(a => a.value);
-          let newgroup = val.filter(x => extract.includes(x));
+        try {
+          var elements = document.getElementsByClassName("focused1");
+          for (let index = 0; index < elements.length; ++index) {
+            elements[index].classList.remove("focused1");
+          }
+          for (let index = 0; index < val.length; ++index) {
+            var element = document.getElementById(val[index] + "1");
+            element.classList.add("focused1");
+          }
+        } catch (err) {
+          let extract = this.searchcol.map((a) => a.value);
+          let newgroup = val.filter((x) => extract.includes(x));
           var elements = document.getElementsByClassName("focused");
           for (let index = 0; index < elements.length; ++index) {
             elements[index].classList.remove("focused");
@@ -179,7 +209,6 @@ export default {
             element.classList.add("focused");
           }
         }
-        
 
         // this.$emit("output", val);
       },
