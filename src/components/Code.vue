@@ -194,6 +194,7 @@ export default {
             this.permission_id +
             "/" +
             this.path,
+          timeout: 1000 * 60, // Wait for 60 seconds
           headers: {
             "Content-Type": "application/json",
           },
@@ -214,11 +215,19 @@ export default {
             this.isLoading = false;
             
           })
-          .catch(function (error) {
+          .catch(error => {
+            console.log(error)
             this.isLoading=false;
             this.error=true;
-            this.message.header="Error in Running SAS";
-            this.message.body="Please check the log for further info or contact the related person.";
+            if (error.code==="ECONNABORTED"){
+              this.message.header="Timeout 60s";
+              this.message.body="SAS might take longer time to process. The file can be downloaded from 'History files' once the process end. Come back in few minutes";
+            }
+            else{
+              this.message.header="Error";
+              this.message.body="Error might occur in SAS process.";
+            }
+            
           });
       }
     },
@@ -227,16 +236,18 @@ export default {
         let copyText = document.getElementById("text" + i).textContent;
         this.textout = this.textout + "\r\n" + copyText;
       }
-      this.$copyText(this.textout).then(
-        function (e) {
-          alert("Copied");
-          console.log(e);
-        },
-        function (e) {
-          alert("Can not copy");
-          console.log(e);
+      this.$copyText(this.textout).then((e)=>
+        {
+          this.error=true
+          this.message.header="Copied";
+          this.message.body="Copy successfully";
         }
-      );
+      )
+      .catch(e=>{
+          this.error=true
+          this.message.header="Copy Fail";
+          this.message.body="Fail to make a copy";
+      });
     },
     onCancel() {
       console.log("cancelled");

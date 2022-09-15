@@ -1,4 +1,12 @@
 <template>
+  <Dialog v-model:visible="error">
+    <template #header>
+      <h3>
+        <font-awesome-icon icon="fa-solid fa-triangle-exclamation" />{{message.header}}
+      </h3>
+    </template>
+    {{message.body}}
+  </Dialog>
   <loading
     v-model:active="isLoading"
     :can-cancel="true"
@@ -86,6 +94,7 @@ import Loading from "vue-loading-overlay";
 import InputText from "primevue/inputtext";
 import Calendar from "primevue/calendar";
 import {FilterMatchMode,FilterOperator} from 'primevue/api';
+import Dialog from "primevue/dialog";
 export default {
   name: "file",
   components: {
@@ -94,7 +103,8 @@ export default {
     Button,
     Loading,
     InputText,
-    Calendar
+    Calendar,
+    Dialog
   },
   data() {
     return {
@@ -108,7 +118,12 @@ export default {
                 'file_id': {operator: FilterOperator.AND, constraints: [{value: null, matchMode: FilterMatchMode.EQUALS}]},
                 'tablename': {operator: FilterOperator.AND, constraints: [{value: null, matchMode: FilterMatchMode.CONTAINS}]},
                 
-            }
+            },
+      error: false,
+      message:{
+        header:null,
+        body:null
+      }
     };
   },
   mounted() {
@@ -158,7 +173,13 @@ export default {
           this.isLoading = false;
           this.success = false;
         })
-        .catch((err) => console.log(err.message));
+        .catch((err) => {
+          this.isLoading=false;
+          this.error=true;
+          this.message.body="File might not exist due to error"
+          this.message.header="Download fail"
+
+        });
     },
     deletefile(id) {
       axios

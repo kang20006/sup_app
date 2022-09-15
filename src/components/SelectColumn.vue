@@ -34,6 +34,57 @@
               role="listbox"
               aria-labelledby="ss_elem"
             >
+              <div
+                v-for="i in [...new Set(searchcol.map((item) => item.group))]"
+                role="group"
+                aria-labelledby="cat1"
+              >
+                <div
+                  class="dropdown"
+                  @click="showDropdown(i)"
+                  :id="i.trim() + '2'"
+                >
+                  <div class="overselect"></div>
+                  <select class="c-form-input" style="width: 350px !important">
+                    <option>{{ i }}</option>
+                  </select>
+                </div>
+                <div class="multiselect" v-if="show[i]" @mouseleave="closeall">
+                  <ul>
+                    <li
+                      v-for="k in searchcol.filter(function (e) {
+                        return e.group === i;
+                      })"
+                      :name="i + '2'"
+                      :id="k.value + '2'"
+                      class="listing"
+                    >
+                      <!-- <input type="checkbox" :value="checkbox(k.value)" /> -->
+                      <input type="checkbox" :checked="checkbox(k.value)" @click="additem(k.value)"/>
+                      <label>{{ k.label }}</label>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- <div class="listbox-area">
+          <div>
+            <div class="p-inputgroup">
+              <span class="p-inputgroup-addon">
+                <i class="pi pi-search"></i>
+              </span>
+              <InputText placeholder="Search" v-model="search" />
+            </div>
+
+            <div
+              id="ss_elem_list"
+              tabindex="0"
+              role="listbox"
+              aria-labelledby="ss_elem"
+            >
+           
               <ul
                 v-for="i in [...new Set(searchcol.map((item) => item.group))]"
                 role="group"
@@ -59,6 +110,8 @@
                 >
                   {{ k.label }}
                 </li>
+                  
+                
               </ul>
             </div>
           </div>
@@ -67,15 +120,16 @@
             class="p-button-text p-button-sm"
             @click="collapse"
           />
-        </div>
+        </div> -->
       </div>
       <div class="col-6">
         <ScrollPanel class="scrollp">
           <span v-for="chip in chips">
-            <div class="chip" :id="chip['label']">
+            <div class="chip" :id="chip['label']" v-tooltip="chip.value">
               <span class="closebtn" @click="removeChip(chip['label'])"
                 >&times;</span
-              ><span class="chiptext">{{ chip.value }}</span>
+              >
+              <span class="chiptext">{{ chip.value }}</span>
             </div>
           </span>
         </ScrollPanel>
@@ -97,6 +151,7 @@ import ScrollPanel from "primevue/scrollpanel";
 import { storeData } from "../store/data";
 import InputText from "primevue/inputtext";
 import Button from "primevue/button";
+
 export default {
   name: "SelectColumn",
   components: {
@@ -106,6 +161,7 @@ export default {
     ScrollPanel,
     InputText,
     Button,
+  
   },
   emits: ["outputColumn"],
   props: ["isdraft"],
@@ -122,6 +178,7 @@ export default {
       searchcol: [],
       isactive: false,
       isinactive: true,
+      show: {},
     };
   },
   mounted() {
@@ -132,6 +189,10 @@ export default {
         this.searchcol = this.columnData;
       })
       .catch((err) => console.log(err.message));
+    let temp_group = [...new Set(this.searchcol.map((item) => item.group))];
+    for (let i = 0; i < temp_group.length; ++i) {
+      this.show[temp_group[i]] = false;
+    }
   },
   watch: {
     // selectedColumn: function (val) {
@@ -148,36 +209,36 @@ export default {
     // },
     selectedColumn: {
       handler: function (val) {
-        let groups = [...new Set(this.searchcol.map((item) => item.group))];
-        for (let i = 0; i < groups.length; ++i) {
-          document.getElementById(groups[i].trim() + "2").className = "active";
-          var elements = document.getElementsByName(groups[i] + "2");
-          for (let index = 0; index < elements.length; ++index) {
-            elements[index].className = "content2";
-          }
-        }
-        try {
-          var elements = document.getElementsByClassName("focused");
-          for (let index = 0; index < elements.length; ++index) {
-            elements[index].classList.remove("focused");
-          }
-          for (let index = 0; index < val.length; ++index) {
-            var element = document.getElementById(val[index] + "2");
-            element.classList.add("focused");
-          }
-        } catch (err) {
-          let extract = this.searchcol.map(a => a.value);
-          let newgroup = val.filter(x => extract.includes(x));
-          var elements = document.getElementsByClassName("focused");
-          for (let index = 0; index < elements.length; ++index) {
-            elements[index].classList.remove("focused");
-          }
-          for (let index = 0; index < newgroup.length; ++index) {
-            var element = document.getElementById(newgroup[index] + "2");
-            element.classList.add("focused");
-          }
+        // let groups = [...new Set(this.searchcol.map((item) => item.group))];
+        // for (let i = 0; i < groups.length; ++i) {
+        //   document.getElementById(groups[i].trim() + "2").className = "active";
+        //   var elements = document.getElementsByName(groups[i] + "2");
+        //   for (let index = 0; index < elements.length; ++index) {
+        //     elements[index].className = "content2";
+        //   }
+        // }
+        // try {
+        //   var elements = document.getElementsByClassName("focused");
+        //   for (let index = 0; index < elements.length; ++index) {
+        //     elements[index].classList.remove("focused");
+        //   }
+        //   for (let index = 0; index < val.length; ++index) {
+        //     var element = document.getElementById(val[index] + "2");
+        //     element.classList.add("focused");
+        //   }
+        // } catch (err) {
+        //   let extract = this.searchcol.map((a) => a.value);
+        //   let newgroup = val.filter((x) => extract.includes(x));
+        //   var elements = document.getElementsByClassName("focused");
+        //   for (let index = 0; index < elements.length; ++index) {
+        //     elements[index].classList.remove("focused");
+        //   }
+        //   for (let index = 0; index < newgroup.length; ++index) {
+        //     var element = document.getElementById(newgroup[index] + "2");
+        //     element.classList.add("focused");
+        //   }
           // to solve the bug we will choose the val only form the filter list the 'searchcol'
-        }
+        // }
 
         this.chips = [];
         this.$emit("outputColumn", val);
@@ -205,14 +266,14 @@ export default {
     //   }
     // },
     search: function (val) {
-      let groups = [...new Set(this.searchcol.map((item) => item.group))];
-      for (let i = 0; i < groups.length; ++i) {
-        document.getElementById(groups[i].trim() + "2").className = "active";
-        var elements = document.getElementsByName(groups[i] + "2");
-        for (let index = 0; index < elements.length; ++index) {
-          elements[index].className = "content2";
-        }
-      }
+      // let groups = [...new Set(this.searchcol.map((item) => item.group))];
+      // for (let i = 0; i < groups.length; ++i) {
+      //   document.getElementById(groups[i].trim() + "2").className = "active";
+      //   var elements = document.getElementsByName(groups[i] + "2");
+      //   for (let index = 0; index < elements.length; ++index) {
+      //     elements[index].className = "content2";
+      //   }
+      // }
       if (val !== null || val !== "") {
         this.searchcol = this.columnData.filter((x) =>
           x["label"].toLowerCase().includes(val.toLowerCase())
@@ -223,27 +284,45 @@ export default {
     },
     isdraft: function (val) {
       this.selectedColumn = storeData.draft.selectedColumn;
-      console.log(this.selectedColumn);
     },
   },
   methods: {
-    open(group) {
-      if (
-        document.getElementById(group.trim() + "2").className === "inactive"
-      ) {
-        document.getElementById(group.trim() + "2").className = "active";
-        var elements = document.getElementsByName(group + "2");
-        for (let index = 0; index < elements.length; ++index) {
-          elements[index].className = "content2";
-        }
-      } else {
-        document.getElementById(group.trim() + "2").className = "inactive";
-        var elements = document.getElementsByName(group + "2");
-        for (let index = 0; index < elements.length; ++index) {
-          elements[index].className = "content";
-        }
-      }
+    closeall(){
+      Object.keys(this.show).forEach((key) => {
+        this.show[key] = false;
+      });
     },
+    checkbox(k){
+      // console.log(this.selectedColumn.indexOf(k))
+      if (this.selectedColumn.indexOf(k) >= 0) {
+    return true
+      }
+    else{ return false}
+    },
+    showDropdown(i) {
+      let original=this.show[i]
+      Object.keys(this.show).forEach(key => {
+        this.show[key] = false;
+      });
+      this.show[i] = !original;
+    },
+    // open(group) {
+    //   if (
+    //     document.getElementById(group.trim() + "2").className === "inactive"
+    //   ) {
+    //     document.getElementById(group.trim() + "2").className = "active";
+    //     var elements = document.getElementsByName(group + "2");
+    //     for (let index = 0; index < elements.length; ++index) {
+    //       elements[index].className = "content2";
+    //     }
+    //   } else {
+    //     document.getElementById(group.trim() + "2").className = "inactive";
+    //     var elements = document.getElementsByName(group + "2");
+    //     for (let index = 0; index < elements.length; ++index) {
+    //       elements[index].className = "content";
+    //     }
+    //   }
+    // },
     additem(val) {
       if (this.selectedColumn.indexOf(val) !== -1) {
         this.selectedColumn = this.selectedColumn.filter(function (value) {
@@ -255,7 +334,6 @@ export default {
       }
       //   var element = document.getElementById(val);
       //   element.className += "focused";
-      console.log(this.selectedColumn);
     },
     removeChip(val) {
       this.selectedColumn = this.selectedColumn.filter((item) => {
@@ -290,18 +368,72 @@ export default {
 </script>
 
 <style scoped>
+.listing{
+  display: flex;
+  justify-content: left;
+}
+.col {
+  flex: 0 0 50%;
+  max-width: 50%;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+/*****
+- MultiSelect 
+*****/
+
+.dropdown {
+  position: relative;
+  cursor: pointer;
+}
+
+.multiselect {
+  /* position: relative; */
+  /* position: fixed; */
+  position: relative;
+  /* position: -webkit-sticky;
+  position: sticky; */
+  width: 350px;
+  height: 10%;
+  z-index: 99999;
+}
+
+ul {
+  border: 1px solid #ddd;
+  border-top: 0;
+  border-radius: 0 0 3px 3px;
+  left: 0px;
+  padding: 8px 8px;
+  position: absolute;
+  top: -1rem;
+  width: 100%;
+  list-style: none;
+  max-height: 200px;
+  overflow: auto;
+  background: #2a323d;
+}
+
+.overselect {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  /* position: fixed; */
+}
 .chip {
   display: inline-block;
-  padding: 0 25px;
-  height: 50px;
+  height: 30px;
   width: 175px;
   font-size: 16px;
-  line-height: 50px;
+  line-height: 30px;
   border-radius: 25px;
   background-color: #f1f1f1;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+  color: #000;
 }
 .closebtn {
   padding-left: 10px;
@@ -355,11 +487,11 @@ export default {
   border: 1px solid #aaa;
   border-radius: 4px;
   background: #2a323d;
-  width: 15rem;
+  width: 23rem;
   color: #e1e2e4;
 }
 
-[role="listbox"] {
+/* [role="listbox"] {
   margin: 1em 0 0;
   padding: 0;
   min-height: 20.2vh;
@@ -425,22 +557,22 @@ export default {
 }
 [role="option"]:hover {
   background-color: #575d66;
-}
+} */
 
-.inactive:after {
-  content: "\02795"; /* Unicode character for "plus" sign (+) */
+/* .inactive:after {
+  content: "\02795"; 
   font-size: 13px;
   color: white;
   float: right;
   margin-left: 5px;
-}
-.active:after {
-  content: "\2796"; /* Unicode character for "plus" sign (-) */
+} */
+/* .active:after {
+  content: "\2796"; 
   font-size: 13px;
   color: white;
   float: right;
   margin-left: 5px;
-}
+}  */
 @media only screen and (max-width: 1600px) {
   .chip {
     width: 155px;

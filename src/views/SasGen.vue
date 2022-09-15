@@ -49,7 +49,7 @@
           />
         </div>
       </div>
-      <div class="grid">
+      <!-- <div class="grid">
         <div class="col-7">
           <SelectColumn @outputColumn="transfer4" :isdraft="isdraft" />
         </div>
@@ -70,7 +70,39 @@
             :isdraft="isdraft"
           />
         </div>
+      </div> -->
+      <div class="card2">
+        <ScrollPanel style="width: 100%; height: 100%">
+        <Accordion>
+          <AccordionTab>
+            <template #header>
+              <i class="pi pi-check"></i>
+              <span>Include</span>
+            </template>
+            <SelectColumn @outputColumn="transfer4" :isdraft="isdraft" />
+          </AccordionTab>
+          <AccordionTab>
+            <template #header>
+              <i class="pi pi-filter"></i>
+              <span>Filter</span>
+            </template>
+            <SelectFilter
+              :selectedFilter="selectFilter"
+              @output="transfer"
+              @yesFile="yesfile"
+            />
+            <FilterList
+              :selectedFilter="selectFilter"
+              @output2="transfer2"
+              @outputFilter="transfer3"
+              :isdraft="isdraft"
+              :isfile="isfile"
+            />
+          </AccordionTab>
+        </Accordion>
+      </ScrollPanel>
       </div>
+      
     </div>
     <div class="col-5">
       <Code
@@ -98,6 +130,9 @@ import router from "../router";
 import Dialog from "primevue/dialog";
 import Log from "@/components/Log.vue";
 import File from "@/components/File.vue";
+import Accordion from "primevue/accordion";
+import AccordionTab from "primevue/accordiontab";
+import ScrollPanel from "primevue/scrollpanel";
 export default {
   name: "SasGen",
   components: {
@@ -113,6 +148,9 @@ export default {
     Draft,
     Log,
     File,
+    Accordion,
+    AccordionTab,
+    ScrollPanel
   },
   data() {
     return {
@@ -124,6 +162,7 @@ export default {
       newTableName: null,
       submitted: false,
       isdraft: false,
+      isfile:false,
       displayL: false,
       displayF: false,
       items: [
@@ -160,8 +199,7 @@ export default {
           command: () => {
             router.push({ name: "login" });
           },
-        }
-        
+        },
       ],
       items2: [
         {
@@ -191,6 +229,7 @@ export default {
             router.push({ name: "login" });
           },
         },
+        
       ],
     };
   },
@@ -232,12 +271,29 @@ export default {
       this.$refs.menu.toggle(event);
     },
     yesdraft(value) {
-      this.display=false
-      this.selectFilter=storeData.draft.selectedFilter_simple
-      this.isdraft=!this.isdraft
+      this.display = false;
+      this.selectFilter = storeData.draft.selectedFilter_simple;
+      this.isdraft = !this.isdraft;
     },
+    yesfile(value) {
+      this.selectFilter = storeData.draft.selectedFilter_simple;
+      this.isfile=!this.isfile;
+    },
+
   },
 };
 </script>
-<style>
+<style scoped>
+  .card2 {
+  margin-block-start: 20px;
+  padding-block-start: 20px;
+  padding-inline-start: 20px;
+  padding-inline-end: 20px;
+  padding-block-end: 20px;
+  background-color: #173542;
+  border-radius: 20px;
+  height: 82vh;
+  width: 100%;
+}
 </style>
+

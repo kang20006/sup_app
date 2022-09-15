@@ -1,4 +1,18 @@
 <template>
+  <loading
+      v-model:active="isLoading"
+      :can-cancel="true"
+      :on-cancel="onCancel"
+      :is-full-page="true"
+    />
+  <Dialog v-model:visible="error">
+    <template #header>
+      <h3>
+        <font-awesome-icon icon="fa-solid fa-triangle-exclamation" />{{message.header}}
+      </h3>
+    </template>
+    {{message.body}}
+  </Dialog>
   <div class="card">
     <div class="title">Filter</div>
     <!-- <Listbox
@@ -16,7 +30,7 @@
         <div>{{ slotProps.option.label }}</div>
         </template>
     </Listbox> -->
-    <div class="listbox-area">
+    <!-- <div class="listbox-area">
       <div>
         <div class="p-inputgroup">
           <span class="p-inputgroup-addon">
@@ -63,17 +77,76 @@
         class="p-button-text p-button-sm"
         @click="collapse"
       />
-      <!-- <FileUpload
+      <FileUpload
         mode="basic"
         name="demo[]"
         :customUpload="true"
-        @uploader="onUpload"
-      /> -->
+        @uploader="onUpload($event)"
+      /> 
+    </div> -->
+    <div class="listbox-area">
+      <div>
+        <div class="p-inputgroup">
+          <span class="p-inputgroup-addon">
+            <i class="pi pi-search"></i>
+          </span>
+          <InputText placeholder="Search" v-model="search" />
+        </div>
+        <div
+          id="ss_elem_list"
+          tabindex="0"
+          role="listbox"
+          aria-labelledby="ss_elem"
+        >
+          <div
+            v-for="i in [...new Set(searchcol.map((item) => item.group))]"
+            role="group"
+            aria-labelledby="cat1"
+          >
+            <div class="dropdown" @click="showDropdown($event,i)" :id="i.trim() + '1'" >
+              <div class="overselect"></div>
+              <select class="c-form-input" style="width: 350px !important">
+                <option>{{ i }}</option>
+              </select>
+            </div>
+            <div class="multiselect" v-if="show[i]" @mouseleave="closeall" :style="{'top':position+'px !important'}">
+            <!-- <div class="multiselect" v-if="show[i]" @mouseleave="closeall"> -->
+              <ul>
+                <li
+                  v-for="k in searchcol.filter(function (e) {
+                    return e.group === i;
+                  })"
+                  :name="i + '1'"
+                  :id="k.value + '1'"
+                  class="listing"
+                  
+                >
+                  <!-- <input type="checkbox" :value="checkbox(k.value)" /> -->
+                  <input
+                    type="checkbox"
+                    :checked="checkbox(k.value)"
+                    @click="additem(k.value)"
+                  />
+                  <label>{{ k.label }}</label>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <label>Upload filter criteria using Excel file</label>
+        <FileUpload
+              mode="basic"
+              name="demo[]"
+              :customUpload="true"
+              @uploader="onUpload($event)"
+            />
+      </div>
     </div>
   </div>
 </template>
 
 <script>
+import Loading from "vue-loading-overlay";
 import axios from "../plugins/axios.js";
 import Listbox from "primevue/listbox";
 import Checkbox from "primevue/checkbox";
@@ -81,7 +154,7 @@ import { storeData } from "../store/data";
 import InputText from "primevue/inputtext";
 import Button from "primevue/button";
 import FileUpload from "primevue/fileupload";
-
+import Dialog from "primevue/dialog";
 export default {
   name: "SelectFilter",
   components: {
@@ -90,11 +163,14 @@ export default {
     InputText,
     Button,
     FileUpload,
+    Dialog,
+    Loading
   },
   props: ["selectedFilter"],
-  emits: ["output"],
+  emits: ["output","yesFile"],
   data() {
     return {
+      isLoading: false,
       search: null,
       searchcol: [],
       isactive: false,
@@ -103,6 +179,12 @@ export default {
       selectAll: false,
       user_id: storeData.user.user_id,
       permission_id: storeData.user.permission_id,
+      file: null,
+      show: {},
+      error: null,
+      message:{header:null,
+      body:null},
+      position:0
     };
   },
   mounted() {
@@ -113,29 +195,70 @@ export default {
         this.searchcol = this.columnData;
       })
       .catch((err) => console.log(err.message));
+    let temp_group = [...new Set(this.searchcol.map((item) => item.group))];
+    for (let i = 0; i < temp_group.length; ++i) {
+      this.show[temp_group[i]] = false;
+    }
   },
   methods: {
-    // onUpload(event) {
-    //   let formData = new FormData();
-    //   formData.append('File', event.files);
-    //   console.log(event)
-    //   axios
-    //     .post(
-    //       process.env.VUE_APP_BASE_URL + "/filterupload/" + this.user_id,
-    //       formData,
-    //       {
-    //         headers: {
-    //           "Content-Type": "multipart/form-data",
-    //         },
-    //       }
-    //     )
-    //     .then((response) => {
-    //         console.log(response)
-    //       })
-    //       .catch(function (error) {
-    //        console.log(error)
-    //       });
-    // },
+    onCancel() {
+      console.log("cancelled");
+    },
+    checkbox(k) {
+      // console.log(this.selectedColumn.indexOf(k))
+      if (this.selectedFilter.indexOf(k) >= 0) {
+        return true;
+      } else {
+        return false;
+      }
+    },
+    showDropdown(e,i) {
+      let original = this.show[i];
+      Object.keys(this.show).forEach((key) => {
+        this.show[key] = false;
+      });
+      this.show[i] = !original;
+      this.position=e.screenY
+      // console.log(this.position)
+    },
+    closeall() {
+      Object.keys(this.show).forEach((key) => {
+        this.show[key] = false;
+      });
+    },
+    onUpload(events) {
+      this.file = events.files;
+      this.isLoading=true
+      axios
+        .post(
+          process.env.VUE_APP_BASE_URL + "/filterupload/" + this.user_id +"/"+this.permission_id,
+          this.file,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        )
+        .then((res) => {
+          this.isLoading=false
+          if (res.data['Error']){
+            this.error=true,
+            this.message['body']=res.data["Error"]
+            this.message.header="Error in processing file"
+          }
+          else{
+            storeData.draft.selectedFilter_simple=res.data.selectedFilter_simple
+            storeData.draft.selectedFilter=res.data.selectedFilter
+            this.$emit("yesFile", true);
+          }
+        })
+        .catch(error=> {
+          this.isLoading=false;
+          this.error=true;
+          this.message['body']="Error in file processing, please try another file."
+          this.message.header="Error in processing file"
+        });
+    },
     open(group) {
       if (
         document.getElementById(group.trim() + "1").className === "inactive"
@@ -180,49 +303,48 @@ export default {
   watch: {
     selectedFilter: {
       handler: function (val) {
-        let groups = [...new Set(this.searchcol.map((item) => item.group))];
-        for (let i = 0; i < groups.length; ++i) {
-          document.getElementById(groups[i].trim() + "1").className = "active";
-          var elements = document.getElementsByName(groups[i] + "1");
-          for (let index = 0; index < elements.length; ++index) {
-            elements[index].className = "content2";
-          }
-        }
-        try {
-          var elements = document.getElementsByClassName("focused1");
-          for (let index = 0; index < elements.length; ++index) {
-            elements[index].classList.remove("focused1");
-          }
-          for (let index = 0; index < val.length; ++index) {
-            var element = document.getElementById(val[index] + "1");
-            element.classList.add("focused1");
-          }
-        } catch (err) {
-          let extract = this.searchcol.map((a) => a.value);
-          let newgroup = val.filter((x) => extract.includes(x));
-          var elements = document.getElementsByClassName("focused");
-          for (let index = 0; index < elements.length; ++index) {
-            elements[index].classList.remove("focused");
-          }
-          for (let index = 0; index < newgroup.length; ++index) {
-            var element = document.getElementById(newgroup[index] + "1");
-            element.classList.add("focused");
-          }
-        }
-
+        // let groups = [...new Set(this.searchcol.map((item) => item.group))];
+        // for (let i = 0; i < groups.length; ++i) {
+        //   document.getElementById(groups[i].trim() + "1").className = "active";
+        //   var elements = document.getElementsByName(groups[i] + "1");
+        //   for (let index = 0; index < elements.length; ++index) {
+        //     elements[index].className = "content2";
+        //   }
+        // }
+        // try {
+        //   var elements = document.getElementsByClassName("focused1");
+        //   for (let index = 0; index < elements.length; ++index) {
+        //     elements[index].classList.remove("focused1");
+        //   }
+        //   for (let index = 0; index < val.length; ++index) {
+        //     var element = document.getElementById(val[index] + "1");
+        //     element.classList.add("focused1");
+        //   }
+        // } catch (err) {
+        //   let extract = this.searchcol.map((a) => a.value);
+        //   let newgroup = val.filter((x) => extract.includes(x));
+        //   var elements = document.getElementsByClassName("focused");
+        //   for (let index = 0; index < elements.length; ++index) {
+        //     elements[index].classList.remove("focused");
+        //   }
+        //   for (let index = 0; index < newgroup.length; ++index) {
+        //     var element = document.getElementById(newgroup[index] + "1");
+        //     element.classList.add("focused");
+        //   }
+        // }
         // this.$emit("output", val);
       },
       deep: true,
     },
     search: function (val) {
-      let groups = [...new Set(this.searchcol.map((item) => item.group))];
-      for (let i = 0; i < groups.length; ++i) {
-        document.getElementById(groups[i].trim() + "1").className = "active";
-        var elements = document.getElementsByName(groups[i] + "1");
-        for (let index = 0; index < elements.length; ++index) {
-          elements[index].className = "content2";
-        }
-      }
+      // let groups = [...new Set(this.searchcol.map((item) => item.group))];
+      // for (let i = 0; i < groups.length; ++i) {
+      //   document.getElementById(groups[i].trim() + "1").className = "active";
+      //   var elements = document.getElementsByName(groups[i] + "1");
+      //   for (let index = 0; index < elements.length; ++index) {
+      //     elements[index].className = "content2";
+      //   }
+      // }
 
       if (val !== null || val !== "") {
         this.searchcol = this.columnData.filter((x) =>
@@ -247,6 +369,57 @@ export default {
 </script>
 
 <style scoped>
+.listing{
+  display: flex;
+  justify-content: left;
+}
+.col {
+  flex: 0 0 50%;
+  max-width: 50%;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+/*****
+- MultiSelect 
+*****/
+
+.dropdown {
+  position: relative;
+  cursor: pointer;
+  /* position:static; */
+}
+
+.multiselect {
+  position: fixed;
+  width: 350px;
+  height: 10%;
+  z-index: 99999;
+}
+
+ul {
+  border: 1px solid #ddd;
+  border-top: 0;
+  border-radius: 0 0 3px 3px;
+  left: 0px;
+  padding: 8px 8px;
+  position: absolute;
+  top: -1rem;
+  width: 100%;
+  list-style: none;
+  max-height: 200px;
+  overflow: auto;
+  background: #2a323d;
+}
+
+.overselect {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  /* position: fixed; */
+}
 .card {
   margin-block-start: 20px;
   padding-block-start: 20px;
@@ -256,7 +429,7 @@ export default {
   background-color: #173542;
   border-radius: 20px;
   height: 40vh;
-  width: 125%;
+  width: 100%;
 }
 .card .title {
   display: flex;
@@ -277,7 +450,7 @@ export default {
   border: 1px solid #aaa;
   border-radius: 4px;
   background: #2a323d;
-  width: 15rem;
+  width: 23rem;
   color: #e1e2e4;
 }
 
@@ -305,6 +478,7 @@ export default {
 [role="group"] {
   margin: 0;
   padding: 0;
+  z-index: 1;
 }
 
 [role="group"] > [role="presentation"] {

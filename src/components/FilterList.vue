@@ -114,7 +114,7 @@ export default {
         Button,
         InputNumber
     },
-    props: ['selectedFilter','isdraft'],
+    props: ['selectedFilter','isdraft','isfile'],
     emits:['output2','outputFilter'],
     data() {
 		return {
@@ -157,9 +157,13 @@ export default {
             deep:true
 
         },
+        'isfile': 
+        function(val){
+                this.filterData=storeData.draft.selectedFilter
+            }
+        ,
         'isdraft':
             function(val){
-                console.log(this.filterData)
                 this.filterData=storeData.draft.selectedFilter
             }
         ,

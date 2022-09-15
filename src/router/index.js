@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory,createWebHashHistory } from 'vue-router'
 import Login from '../views/Login.vue'
 import SasGen from '../views/SasGen.vue'
+import test from '../views/test.vue'
 const routes = [
   {
     path: '/',
@@ -10,7 +11,11 @@ const routes = [
   {
     path: '/sasgen',
     name: 'sasgen',
-    component: SasGen}
+    component: SasGen},
+    {
+      path: '/test',
+      name: 'test',
+      component: test},
     
 ]
 

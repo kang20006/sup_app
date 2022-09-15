@@ -18,8 +18,10 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 /* import specific icons */
 import {faPersonRunning,faCopy,faCode,faTriangleExclamation,faMagnifyingGlass} from '@fortawesome/free-solid-svg-icons'
+import Tooltip from 'primevue/tooltip';
+
 
 /* add icons to the library */
 library.add(faPersonRunning,faCopy,faCode,faTriangleExclamation,faMagnifyingGlass)
 
-createApp(App).use(router).use(PrimeVue).use(VueClipboard).use(router).use(VueLoading).component('font-awesome-icon', FontAwesomeIcon).mount('#app')
+createApp(App).use(router).use(PrimeVue).use(VueClipboard).use(router).use(VueLoading).component('font-awesome-icon', FontAwesomeIcon).directive('tooltip', Tooltip).mount('#app')
