@@ -1,4 +1,5 @@
 <template>
+  <Toast/>
   <loading
       v-model:active="isLoading"
       :can-cancel="true"
@@ -155,6 +156,7 @@ import InputText from "primevue/inputtext";
 import Button from "primevue/button";
 import FileUpload from "primevue/fileupload";
 import Dialog from "primevue/dialog";
+import Toast from "primevue/toast";
 export default {
   name: "SelectFilter",
   components: {
@@ -164,7 +166,8 @@ export default {
     Button,
     FileUpload,
     Dialog,
-    Loading
+    Loading,
+    Toast
   },
   props: ["selectedFilter"],
   emits: ["output","yesFile"],
@@ -250,6 +253,7 @@ export default {
             storeData.draft.selectedFilter_simple=res.data.selectedFilter_simple
             storeData.draft.selectedFilter=res.data.selectedFilter
             this.$emit("yesFile", true);
+            this.$toast.add({severity:'success', summary: 'File loaded', detail:'The file is loaded successfully.', life: 3000});
           }
         })
         .catch(error=> {

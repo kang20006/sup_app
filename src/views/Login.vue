@@ -128,6 +128,7 @@ export default {
 
         .catch((error) => {
           this.errored = true;
+          this.isLoading=false;
           console.log(error);
           console.log(this.errored);
         });

@@ -1,4 +1,5 @@
 <template>
+  <Toast/>
   <TreeTable
     :value="draft"
     sortMode="single"
@@ -88,13 +89,15 @@ import { storeData } from "../store/data";
 import axios from "../plugins/axios.js";
 import Button from "primevue/button";
 import InputText from "primevue/inputtext";
+import Toast from "primevue/toast";
 export default {
   name: "draft",
   components: {
     TreeTable,
     Column,
     Button,
-    InputText
+    InputText,
+    Toast
   },
   emits: ["yesDraft"],
   data() {
@@ -126,11 +129,15 @@ export default {
           };
           storeData.updateDraft(this.select_draft);
           this.$emit("yesDraft", true);
+          this.$toast.add({severity:'success', summary: 'Load Successfully', detail:'The item id '+id+ ' is loaded.', life: 3000});
         })
-        .catch((err) => console.log(err.message));
+        .catch((err) => {console.log(err.message)
+          this.$toast.add({severity:'error', summary: 'Fail to Load', detail:'The item id '+id+ ' cannot load', life: 3000});
+        });
     },
     deletedraft(id) {
-      axios
+    
+         axios
         .delete("/draftlog/deletedraft/" + id)
         .then((res) => {
           console.log(res.data);
@@ -138,10 +145,16 @@ export default {
             .get("/draftlog/getdraft/" + this.user_id)
             .then((res) => {
               this.draft = res.data.root;
+              this.$toast.add({severity:'success', summary: 'Delete Successfully', detail:'The item id '+id+ ' is deleted.', life: 3000});
             })
-            .catch((err) => console.log(err.message));
+            .catch((err) => {console.log(err.message)
+             });
         })
-        .catch((err) => console.log(err.message));
+        .catch((err) => {console.log(err.message)
+          this.$toast.add({severity:'error', summary: 'Fail to delete', detail:'The item id '+id+ ' fail to delete. Please remove it from the schedule before delete it.', life: 3000});
+        });
+      
+     
     },
     refresh() {
       axios

@@ -172,9 +172,13 @@ export default {
       this.$emit("warn", this.submitted);
       try {
         this.error = this.newTableName["error"];
+        if (this.error===true){
+          this.message.header="Error in Output Table Name";
+          this.message.body=this.newTableName["message"];
+        }
       } catch (err) {
         this.error = true;
-        this.message.header="The New Output Table Name is Empty";
+        this.message.header="Error in Output Table Name";
         this.message.body="Please fill the the output table name!";
       }
 

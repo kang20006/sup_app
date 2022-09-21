@@ -1,15 +1,22 @@
 <template>
+    <Toast />
+    <Dialog header="Scheduler" v-model:visible="schedule">
+        <ScheduleForm @close="closedialog"></ScheduleForm>
+    </Dialog>
     <div class="card">
         <div class="title">
             Name Of Output Table
         </div>
-        <div>
+        <div class="field">
             <div class="grid">
-                <div class="col-10">
+                <div class="col-7">
                     <InputText id="tablename" type="text" v-model="newTableName" class="aligning" placeholder="Output Table Name"/>  
                 </div>
                 <div class="col-2">
                     <Button label="Template" icon="pi pi-save" iconPos="right" class="button" @click="savedraft"/> 
+                </div>
+                <div class="col-2">
+                    <Button label="Schedule" icon="pi pi-clock" iconPos="right" class="button" @click="openschedule"/> 
                 </div>
                    
             </div>
@@ -26,13 +33,20 @@ import Card from 'primevue/card';
 import Button from 'primevue/button';
 import { storeData } from "../store/data";
 import axios from "../plugins/axios.js";
+import isVarName from 'is-var-name';
+import Dialog from 'primevue/dialog';
+import ScheduleForm from './ScheduleForm.vue';
+import Toast from 'primevue/toast';
 export default {
     name: "TableName",
     components: {
-        InputText,
-        Card,
-        Button
-    },
+    InputText,
+    Card,
+    Button,
+    Dialog,
+    ScheduleForm,
+    Toast
+},
     props:['submitted','filterCriteria','selectedColumn','isdraft'],
     emits:['outputTableName'],
     data() {
@@ -41,16 +55,27 @@ export default {
             error:true,
             user_id:storeData.user.user_id,
             permission_id:storeData.user.permission_id,
-            draft:null
-           
+            draft:null,
+            schedule:false
         };
     },
     methods:{
+        closedialog(value){
+            this.schedule=value
+        },
+        openschedule(){
+            this.schedule=true
+        },
         validateInput(value){
             if (value ==="" && this.submitted===true){
                 this.error=true
+                this.message="Empty Name of Output Table. Please enter the name of Output"
             }
-            else{
+            else if((isVarName(value)===false || value.length>23)){
+                this.error=true
+                this.message="Invalid Name of Output Table. The name should not begin with number, shound not contain space, and must less than 23 characters."
+            }
+            else if ((isVarName(value)===true && value.length<23)){
                 this.error=false
             }
         },
@@ -71,6 +96,7 @@ export default {
             })
               .then((response) => {
                   console.log(response)
+                  this.$toast.add({severity:'success', summary: 'Template Saved', detail:'Please check the Template tab in the menu.', life: 3000});
               })
               .catch(function (error) {
                 console.log(error);
@@ -82,7 +108,8 @@ export default {
     watch:{
         newTableName: function (val) {
             this.validateInput(val)
-            this.$emit('outputTableName',{newTableName:val, error:this.error})
+            this.$emit('outputTableName',{newTableName:val, error:this.error, message:this.message})
+            
         }, 
         // watch if the isdraft change value means the draft is load so change the value according to the value store in storedata
         isdraft: function(){
@@ -99,6 +126,9 @@ export default {
 .title{
     padding-block-end: 5px;
     font-size: larger;
+}
+.field{
+    width: 100%;
 }
 .card{
     padding-block-start: 5px;

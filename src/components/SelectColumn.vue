@@ -126,9 +126,10 @@
         <ScrollPanel class="scrollp">
           <span v-for="chip in chips">
             <div class="chip" :id="chip['label']" v-tooltip="chip.value">
-              <span class="closebtn" @click="removeChip(chip['label'])"
-                >&times;</span
-              >
+              <!-- <div class="closebtn" @click="removeChip(chip['label'])"
+                >&times;</div
+              > -->
+              <Button icon="pi pi-times" class="p-button-rounded p-button-danger p-button-sm  p-button-text" @click="removeChip(chip['label'])"/>
               <span class="chiptext">{{ chip.value }}</span>
             </div>
           </span>
@@ -424,7 +425,7 @@ ul {
 }
 .chip {
   display: inline-block;
-  height: 30px;
+  height: 35px;
   width: 175px;
   font-size: 16px;
   line-height: 30px;
@@ -434,16 +435,18 @@ ul {
   white-space: nowrap;
   text-overflow: ellipsis;
   color: #000;
-}
+  margin: 2.5px;
+} 
 .closebtn {
   padding-left: 10px;
+  padding-right:20px;
   color: #888;
   font-weight: bold;
   float: right;
   font-size: 20px;
   cursor: pointer;
+  width:20px;
 }
-
 .closebtn:hover {
   color: #000;
 }

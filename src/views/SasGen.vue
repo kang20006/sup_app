@@ -8,6 +8,9 @@
   <Dialog header="History Files" v-model:visible="displayF">
     <File />
   </Dialog>
+  <Dialog header="Scheduler List" v-model:visible="displayS">
+    <ScheduleList/>
+  </Dialog>
   <div class="grid">
     <div class="col-7">
       <div class="grid">
@@ -133,6 +136,8 @@ import File from "@/components/File.vue";
 import Accordion from "primevue/accordion";
 import AccordionTab from "primevue/accordiontab";
 import ScrollPanel from "primevue/scrollpanel";
+import ScheduleList from "@/components/ScheduleList.vue";
+import Toast from "primevue/toast";
 export default {
   name: "SasGen",
   components: {
@@ -150,7 +155,9 @@ export default {
     File,
     Accordion,
     AccordionTab,
-    ScrollPanel
+    ScrollPanel,
+    ScheduleList,
+    Toast
   },
   data() {
     return {
@@ -165,6 +172,7 @@ export default {
       isfile:false,
       displayL: false,
       displayF: false,
+      displayS: false,
       items: [
         {
           label: storeData.user.name,
@@ -191,6 +199,14 @@ export default {
           command: () => {
             this.displayF = true;
           },
+        },
+        {
+          label: "Scheduler List",
+          icon: "pi pi-clock",
+          command: () => {
+            this.displayS = true;
+          },
+
         },
 
         {
@@ -221,7 +237,14 @@ export default {
             this.displayF = true;
           },
         },
+        {
+          label: "Scheduler List",
+          icon: "pi pi-clock",
+          command: () => {
+            this.displayS = true;
+          },
 
+        },
         {
           label: "Sign-Out",
           icon: "pi pi-sign-out",

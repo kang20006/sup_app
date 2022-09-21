@@ -1,4 +1,5 @@
 <template>
+  <Toast/>
   <Dialog v-model:visible="error">
     <template #header>
       <h3>
@@ -41,7 +42,7 @@
     </template>
     <Column field="datetime" header="Date Time" :sortable="true">
       <template #filter="{filterModel}">
-          <InputText type="text" v-model="filterModel.value" class="p-column-filter" placeholder="yyyy-dd-mm" />
+          <InputText type="text" v-model="filterModel.value" class="p-column-filter" placeholder="yyyy-mm-dd" />
       </template>
     </Column>
     <Column field="file_id" header="File ID" :sortable="true">
@@ -95,6 +96,7 @@ import InputText from "primevue/inputtext";
 import Calendar from "primevue/calendar";
 import {FilterMatchMode,FilterOperator} from 'primevue/api';
 import Dialog from "primevue/dialog";
+import Toast from "primevue/toast";
 export default {
   name: "file",
   components: {
@@ -104,7 +106,9 @@ export default {
     Loading,
     InputText,
     Calendar,
-    Dialog
+    Dialog,
+    InputText,
+    Toast
   },
   data() {
     return {
@@ -192,10 +196,13 @@ export default {
             .get("/download/loadfile/" + this.user_id)
             .then((res) => {
               this.file = res.data;
+              this.$toast.add({severity:'success', summary: 'Delete Successfully', detail:'The item id '+id+ ' is deleted.', life: 3000});
             })
-            .catch((err) => console.log(err.message));
+            .catch((err) => {console.log(err.message)
+              });
         })
-        .catch((err) => console.log(err.message));
+        .catch((err) => {console.log(err.message)
+          this.$toast.add({severity:'error', summary: 'Fail to delete', detail:'The item id '+id+ ' fail to delete. File might not exist.', life: 3000});});
     },
     refresh() {
       axios
@@ -203,7 +210,9 @@ export default {
         .then((res) => {
           this.file = res.data;
         })
-        .catch((err) => console.log(err.message));
+        .catch((err) => {console.log(err.message)
+          this.$toast.add({severity:'error', summary: 'Fail to Download', detail:'The item fail to download.', life: 3000});
+        });
     },
     onCancel() {
       console.log("cancelled");

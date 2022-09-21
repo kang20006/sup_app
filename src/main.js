@@ -10,6 +10,7 @@ import VueClipboard from 'vue-clipboard2'
 import VueLoading from 'vue-loading-overlay';
 import 'vue-loading-overlay/dist/vue-loading.css';
 import router from './router'
+import ToastService from 'primevue/toastservice';
 /* import the fontawesome core */
 import { library } from '@fortawesome/fontawesome-svg-core'
 
@@ -24,4 +25,4 @@ import Tooltip from 'primevue/tooltip';
 /* add icons to the library */
 library.add(faPersonRunning,faCopy,faCode,faTriangleExclamation,faMagnifyingGlass)
 
-createApp(App).use(router).use(PrimeVue).use(VueClipboard).use(router).use(VueLoading).component('font-awesome-icon', FontAwesomeIcon).directive('tooltip', Tooltip).mount('#app')
+createApp(App).use(router).use(PrimeVue).use(VueClipboard).use(router).use(VueLoading).component('font-awesome-icon', FontAwesomeIcon).directive('tooltip', Tooltip).use(ToastService).mount('#app')
